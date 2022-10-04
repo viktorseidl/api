@@ -1,10 +1,23 @@
 <?php
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //      MITARBEITER CLASS
+    //      
+    //      @ FUNCTION INSERT 
+    //      @ FUNCTION SELECT
+    //      @ FUNCTION UPDATE
+    //      @ FUNCTION DELETE
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Mitarbeiter{
-    //DB
+    ///////////////////DB
     private $conn;
+
+    ///////////////////TABLE
     private $table='mitarbeiter';
 
-    //Table Schema
+    ///////////////////SCHEMA
     public $id;
     public $v_name;
     public $n_name;
@@ -18,25 +31,28 @@ class Mitarbeiter{
     public $pLevel;
     public $requestToken;
     public $qType;
-    //initiate Class Model
+
+    ///////////////////INICIALISE CLASS
     public function __construct($db){
         $this->conn=$db;
     }
     
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      READ DATA
+    //      READ DATA METHOD
+    //      UP TO 7 SELECTS IN ONE METHOD
+    //      QTYPE SWITCHES BETWEEN THE DIFFERENT QUERY OPTIONS
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function read(){
-        
+        ///////////////////INICIALISE VARIABLES 
         $uid=htmlspecialchars(strip_tags($this->id));
         $type=htmlspecialchars(strip_tags($this->qType));
         $API=htmlspecialchars(strip_tags($this->requestToken));
         
         switch($type){
             case 0:
-                //CheckifLoggedIn                
+                ///////////////////CHECK IF LOGGED IN                
                 $query= '
                 SELECT 
                 requestToken
@@ -46,13 +62,14 @@ class Mitarbeiter{
                 id="'.$uid.'" AND requestToken = "'.$API.'" 
                 LIMIT 1
                 ';
-                 //Prepare stmt
+                 ///////////////////PREPARE STATEMENT
                  $stmt=$this->conn->prepare($query);
+                 ///////////////////EXECUTE QUERY
                  $stmt->execute();
         
                 break;
             case 1:
-                //Login with Pin and Pass
+                ///////////////////LOGIN WITH PASS AND ID
                 $gKey=hash('sha256',$API.$uid);
                 $query= '
                 SELECT 
@@ -60,6 +77,7 @@ class Mitarbeiter{
                 v_name,
                 n_name,
                 u_name,
+                mail,
                 pLevel
                 FROM
                 ' .$this->table.' 
@@ -67,42 +85,47 @@ class Mitarbeiter{
                 generalKeyHash="'.$gKey.'" 
                 LIMIT 1
                 ';
-                 //Prepare stmt
+                 ///////////////////PREPARE STATEMENT
                  $stmt=$this->conn->prepare($query);
+                 ///////////////////EXECUTE QUERY
                  $stmt->execute();        
                 break;
             case 2:
-                //Select Mitarbeiter on V_Name
+                /////////////////// SELECT USER ON V_NAME (VORNAME)
                 $query= 'SELECT 
                 id,
                 v_name,
-                u_name 
+                u_name,
+                mail 
                 FROM
                 ' .$this->table.' 
                 WHERE 
                 v_name LIKE "%'.$uid.'%" ';
-                 //Prepare stmt
+                 ///////////////////PREPARE STATEMENT
                  $stmt=$this->conn->prepare($query);
+                 ///////////////////EXECUTE QUERY
                  $stmt->execute();        
                 break;
             case 3:
-                //Select Mitarbeiter on Permission Level
+                ///////////////////SELECT ALL USER ON PERMISSION LEVEL
                 $query= 'SELECT 
                 id,
                 v_name,
                 n_name,
                 u_name,
+                mail,
                 pLevel 
                 FROM
                 ' .$this->table.' 
                 WHERE
                 pLevel="'.$uid.'" ';
-                 //Prepare stmt
+                 ///////////////////PREPARE STATEMENT
                  $stmt=$this->conn->prepare($query);
+                 ///////////////////EXECUTE QUERY
                  $stmt->execute(); 
                 break;
             case 4:
-                //Select U_Name on ID
+                ///////////////////SELECT USERNAME ON USER-ID
                 $query= 'SELECT
                 id, 
                 u_name
@@ -110,25 +133,34 @@ class Mitarbeiter{
                 ' .$this->table.' 
                 WHERE
                 id="'.$uid.'" ';
-                 //Prepare stmt
+                 ///////////////////PREPARE STATEMENT
                  $stmt=$this->conn->prepare($query);
+                 ///////////////////EXECUTE QUERY
                  $stmt->execute(); 
                 break;
             case 5:
-                //Login GKey
+                ///////////////////LOGIN WITH GERNERALKEYHASH
                 $query= 'SELECT 
+                pinnrHash,
+                timetouchIdHash,
                 generalKeyHash
                 FROM
                 ' .$this->table.' 
                 WHERE 
                 generalKeyHash="'.$API.'" ';
-                 //Prepare stmt
+                 ///////////////////PREPARE STATEMENT
                  $stmt=$this->conn->prepare($query);
+                 ///////////////////EXECUTE QUERY
                  $stmt->execute(); 
                 break;
             case 6:
-                //Select full Data on Mitarbeiter
+                ///////////////////SELECT FULL DATA ON GENERALKEYHASH AND USER-ID
                 $query= 'SELECT
+                id,
+                v_name,
+                n_name,
+                u_name,
+                mail,
                 generalKeyHash
                 FROM
                 ' .$this->table.' 
@@ -136,48 +168,45 @@ class Mitarbeiter{
                 generalKeyHash="'.$API.'"
                 AND
                 id="'.$uid.'" LIMIT 1 ';
-                 //Prepare stmt
+                 ///////////////////PREPARE STATEMENT
                  $stmt=$this->conn->prepare($query);
+                 ///////////////////EXECUTE QUERY
+                 $stmt->execute(); 
+                break;
+            case 7:
+                ///////////////////SELECT MAIL ON GENERALKEYHASH FOR PASSWORD CHANGE
+                $query= 'SELECT
+                mail
+                FROM
+                ' .$this->table.' 
+                WHERE 
+                generalKeyHash="'.$API.'" 
+                LIMIT 1 ';
+                 ///////////////////PREPARE STATEMENT
+                 $stmt=$this->conn->prepare($query);
+                 ///////////////////EXECUTE QUERY
                  $stmt->execute(); 
                 break;
             default:
-                $query= 'SELECT 
-                v_name,
-                n_name,
-                pinnr,
-                pinnrHash,
-                timetouchId,
-                timetouchIdHash,
-                generalKeyHash,
-                u_name,
-                pLevel 
-                FROM
-                ' .$this->table.' WHERE id=:id';
-                 //Prepare stmt
-        $stmt=$this->conn->prepare($query);
-
-        $stmt->bindParam(':id', $uid);
-        $stmt->bindParam(':API', $API);
+                $stmt=null;
             break;
-        }
-               
-        
+        }        
+        ///////////////////RETURN RESULT
         return $stmt;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      INSERT DATA
+    //      INSERT DATA METHOD 
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function createMitarbeiter() {
-        // Create query
+        ///////////////////QUERY
         $query = 'INSERT INTO 
         ' . $this->table . ' 
         SET 
         v_name = :v_name, 
         n_name = :n_name, 
-        pinnr = :pinnr, 
         pinnrHash = :pinnrHash, 
         timetouchIdHash = :timetouchIdHash, 
         generalKeyHash = :generalKeyHash, 
@@ -186,10 +215,10 @@ class Mitarbeiter{
         requestToken = :requestToken
         ';
 
-        // Prepare statement
+        ///////////////////PREPARE STATEMENT
         $stmt = $this->conn->prepare($query);
 
-        // Clean data
+        ///////////////////CLEAN DATA
         $this->v_name = htmlspecialchars(strip_tags($this->v_name));
         $this->n_name = htmlspecialchars(strip_tags($this->n_name));
         $this->pinnr = htmlspecialchars(strip_tags($this->pinnr));
@@ -200,7 +229,7 @@ class Mitarbeiter{
         $this->pLevel  = htmlspecialchars(strip_tags($this->pLevel ));
         $this->requestToken = hash('sha256',htmlspecialchars(strip_tags($this->generalKeyHash)).time());
         
-        // Bind data
+        ///////////////////BIND DATA
         $stmt->bindParam(':v_name', $this->v_name);
         $stmt->bindParam(':n_name', $this->n_name);
         $stmt->bindParam(':pinnr', $this->pinnr);
@@ -211,7 +240,7 @@ class Mitarbeiter{
         $stmt->bindParam(':pLevel', $this->pLevel);
         $stmt->bindParam(':requestToken', $this->requestToken);
 
-        // Execute query
+        ///////////////////EXECUTE QUERY
         if($stmt->execute()) {
             return true;
         }else{
@@ -221,14 +250,16 @@ class Mitarbeiter{
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      UPDATE DATA
+    //      UPDATE DATA METHOD
+    //      UP TO 4 UPDATE OPTION
+    //      QTYPE SWITCHES BETWEEN THE DIFFERENT UPDATE OPTIONS
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function updateMitarbeiter() {
             $type=htmlspecialchars(strip_tags($this->qType));
             switch($type){
                 case 0:
-                    //Update Person details N-name
+                    ///////////////////UPDATE N_NAME ON USER
                     $id=htmlspecialchars(strip_tags($this->id));
                     $nname=htmlspecialchars(strip_tags($this->n_name));
                     $RT=htmlspecialchars(strip_tags($this->requestToken));
@@ -241,57 +272,106 @@ class Mitarbeiter{
                     AND
                     requestToken="'.$RT.'"';
 
-                    // Prepare statement
+                    ///////////////////PREPARE STATEMENT
                     $stmt = $this->conn->prepare($query);
-                    
+                    ///////////////////EXECUTE QUERY
                     if($stmt->execute()) {
                         return true;
                     }else{
                         return false;
                     }
-                break;
-            case 1:
-                    //Update Person details Passwort
+                    break;
+                case 1:
+                        ///////////////////UPDATE PASSWORD
+                        $newPinHash=htmlspecialchars(strip_tags($this->pinnrNew));
+                        $Tid=htmlspecialchars(strip_tags($this->timetouchIdHash));
+                        $oldGK=htmlspecialchars(strip_tags($this->requestToken));
+                        $GK=hash('sha256',$newPinHash.$Tid);
+                        $query = 'UPDATE 
+                        ' . $this->table . '
+                        SET 
+                        pinnrHash ="'.$newPinHash.'",
+                        generalKeyHash="'.$GK.'"
+                        WHERE 
+                        timetouchIdHash ="'.$Tid.'"';
+                        ///////////////////PREPARE STATEMENT
+                        $stmt = $this->conn->prepare($query);
+                        ///////////////////EXECUTE QUERY
+                        if($stmt->execute()) {
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    break;
+                case 2:
+                    ///////////////////UPDATE U_NAME ON USER
                     $id=htmlspecialchars(strip_tags($this->id));
-                    $oldPin=hash('sha256',htmlspecialchars(strip_tags($this->pinnr)));
-                    $newPin=htmlspecialchars(strip_tags($this->pinnrNew));
-                    $newPinHash=hash('sha256',htmlspecialchars(strip_tags($this->pinnrNew)));
-                    $Tid=hash('sha256',htmlspecialchars(strip_tags($this->timetouchIdHash)));
-                    $oldGK=hash('sha256',$oldPin.$Tid);
-                    $GK=hash('sha256',$newPin.$Tid);
+                    $uname=htmlspecialchars(strip_tags($this->u_name));
                     $RT=htmlspecialchars(strip_tags($this->requestToken));
                     $query = 'UPDATE 
                     ' . $this->table . '
                     SET 
-                    pinnr ="'.$newPin.'",
-                    pinnrHash ="'.$newPinHash.'",
-                    generalKeyHash="'.$GK.'"
+                    u_name ="'.$uname.'"
                     WHERE 
                     id ="'.$id.'" 
                     AND
-                    generalKeyHash="'.$oldGK.'"';
-                    // Prepare statement
+                    requestToken="'.$RT.'"';
+
+                    ///////////////////PREPARE STATEMENT
                     $stmt = $this->conn->prepare($query);
-                    
+                    ///////////////////EXECUTE QUERY
                     if($stmt->execute()) {
                         return true;
                     }else{
                         return false;
                     }
-                break;
-            case 2:
-                //Update Person details U-name
-                break;
-            case 3:
-                //Update Person details generalKeyHash
-                break;
-            case 4:
-                //Update Person details pLevel
-                break;
-            case 5:
-                //Update Person details requestToken
-                break;
+                    break;
+                case 3:
+                    ///////////////////UPDATE PERMISSION LEVEL ON USER
+                    $id=htmlspecialchars(strip_tags($this->id));
+                    $pLev=htmlspecialchars(strip_tags($this->pLevel));
+                    $RT=htmlspecialchars(strip_tags($this->requestToken));
+                    $query = 'UPDATE 
+                    ' . $this->table . '
+                    SET 
+                    pLevel ="'.$pLev.'"
+                    WHERE 
+                    id ="'.$id.'" 
+                    AND
+                    requestToken="'.$RT.'"';
+
+                    ///////////////////PREPARE STATEMENT
+                    $stmt = $this->conn->prepare($query);
+                    ///////////////////EXECUTE QUERY
+                    if($stmt->execute()) {
+                        return true;
+                    }else{
+                        return false;
+                    }
+                    break;
+                case 4:
+                    ///////////////////UPDATE SESSIONTOKEN ON USER
+                    $id=htmlspecialchars(strip_tags($this->id));
+                    $NRQ=htmlspecialchars(strip_tags($this->pinnrNew));
+                    $query = 'UPDATE 
+                    ' . $this->table . '
+                    SET 
+                    requestToken ="'.$NRQ.'"
+                    WHERE 
+                    id ="'.$id.'" LIMIT 1';
+
+                    ///////////////////PREPARE STATEMENT
+                    $stmt = $this->conn->prepare($query);
+                    ///////////////////EXECUTE QUERY
+                    if($stmt->execute()) {
+                        return true;
+                    }else{
+                        return false;
+                    }
+                    break;
+                
             default:
+            return false;
             break;
         }
         
@@ -299,8 +379,36 @@ class Mitarbeiter{
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      DELETE DATA
+    //      DELETE DATA METHOD
+    //      ADMIN MUST BE LOGGED IN OTHERWISE NO DELETE POSSIBLE
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public function deleteMitarbeiter(){
+        $uid=htmlspecialchars(strip_tags($this->id));
+        $this->id=htmlspecialchars(strip_tags($this->pinnr));
+        ///////////////////SET = TO CHECK IF ADMIN IS LOGGED IN
+        $this->qType=0;
+        ///////////////////SESSIONTOKEN OF ADMIN
+        $ARQ=htmlspecialchars(strip_tags($this->requestToken));
+        ///////////////////EXECUTE QUERY ON ADMIN SESSION
+        $res=$this->read();
+        if($res->rowCount()>0){
+        ///////////////////IF SESSION EXISTS PROCEED WITH DELETE
+        $query = 'DELETE FROM 
+                    ' . $this->table . '
+                    WHERE 
+                    id ="'.$uid.'"';
+        ///////////////////PREPARE STATEMENT
+        $stmt = $this->conn->prepare($query);
+        ///////////////////EXECUTE QUERY            
+        if($stmt->execute()) {
+            return true;
+        }else{
+            return false;
+        }
+        }else{
+            return false;
+        }
+    }
 }
 ?>
