@@ -14,6 +14,8 @@
     ///////////////////HEADERS
     header('Access-Control-Allow-Origin: *');
     header('Content-Type: application/json');
+    header('Access-Control-Allow-Methods: POST');
+    header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
     ///////////////////INCLUDES
     include_once('../../../config/Database.php');
     include_once('../../../models/Mitarbeiter.php');
@@ -22,19 +24,20 @@
 
 
     ///////////////////GET DATA
-    if(isset($_GET['id'])&&($_GET['qType'])&&($_GET['API'])){
+    
     ///////////////////INICIATE DB
     $database = new Database();
     $db = $database->connect();
     ///////////////////INICIATE OBJECT
     $mitarbeiter=new Mitarbeiter($db);
-
+    ///////////////////GET RAW DATA
+    $data = json_decode(file_get_contents("php://input"));
     ///////////////////UDER-ID
-    $mitarbeiter->id=$_GET['id'];
+    $mitarbeiter->id=$data->id;
     ///////////////////QUERY TYPE
-    $mitarbeiter->qType=$_GET['qType'];
+    $mitarbeiter->qType=$data->qType;
     ///////////////////REQUESTTOKEN OR GENERALKEYHASH
-    $mitarbeiter->requestToken=$_GET['API'];
+    $mitarbeiter->requestToken=$data->API;
     ///////////////////PREPARE ARRAY FOR OUTPUT
     $mit_arr=array();
     $mit_arr['data']=array();
@@ -79,6 +82,9 @@
                         'v_name' => $v_name,        
                         'n_name' => $n_name,        
                         'u_name' => $u_name,        
+                        'timetouchIdHash' => $timetouchIdHash,        
+                        'generalKeyHash' => $generalKeyHash,        
+                        'mail' => $mail,        
                         'pLevel' => $pLevel        
                     );
                     array_push($mit_arr['data'],$mit_item);
@@ -138,7 +144,7 @@
                     
                     $mit_item= array(
                         'generalKeyHash' => $generalKeyHash,        
-                        'pinnrHash' => $pinnrHash        
+                        'pinnrHash' => $pinnrHash     ,   
                         'timetouchIdHash' => $timetouchIdHash        
                     );
                         
@@ -203,47 +209,6 @@
             );
             break;
         }
-        
-        
-        
-        
-    }else{
-        ///////////////////IF NOT DATA FOUND IN DB RETURN ON QUERY TYPE
-        switch($mitarbeiter->qType){
-            case 0:
-                array_push($mit_arr['data'],array('check'=>false));
-                echo json_encode($mit_arr);
-                break;
-            case 1:
-                array_push($mit_arr['data'],array('check'=>false));
-                echo json_encode($mit_arr);
-                break;
-            case 2:
-                echo json_encode(
-                    array('message' => 'Kein Eintrag vorhanden!')
-                );
-                break;
-            case 3:
-                echo json_encode(
-                    array('message' => 'Kein Eintrag vorhanden!')
-                );
-                break;
-            case 4:
-                echo json_encode(
-                    array('message' => 'Kein Eintrag vorhanden!')
-                );
-                break;
-            case 5:
-                array_push($mit_arr['data'],array('check'=>false));
-                echo json_encode($mit_arr);
-                break;
-            default:
-            array_push($mit_arr['data'],array('message' => 'Kein Eintrag vorhanden!'));
-            echo json_encode($mit_arr);
-            break;
-        }
-        
-    }
     }
 
 ?>

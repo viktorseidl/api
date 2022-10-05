@@ -77,6 +77,8 @@ class Mitarbeiter{
                 v_name,
                 n_name,
                 u_name,
+                timetouchIdHash,
+                generalKeyHash,
                 mail,
                 pLevel
                 FROM
@@ -352,13 +354,14 @@ class Mitarbeiter{
                 case 4:
                     ///////////////////UPDATE SESSIONTOKEN ON USER
                     $id=htmlspecialchars(strip_tags($this->id));
+                    $API=htmlspecialchars(strip_tags($this->requestToken));
                     $NRQ=htmlspecialchars(strip_tags($this->pinnrNew));
                     $query = 'UPDATE 
                     ' . $this->table . '
                     SET 
                     requestToken ="'.$NRQ.'"
                     WHERE 
-                    id ="'.$id.'" LIMIT 1';
+                    id ="'.$id.'" AND timetouchIDHash="'.$API.'" LIMIT 1';
 
                     ///////////////////PREPARE STATEMENT
                     $stmt = $this->conn->prepare($query);
