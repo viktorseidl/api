@@ -14,9 +14,6 @@ class Mitarbeiter{
     ///////////////////DB
     private $conn;
 
-    ///////////////////TABLE
-    private $table='mitarbeiter';
-
     ///////////////////SCHEMA
     public $id;
     public $v_name;
@@ -36,7 +33,44 @@ class Mitarbeiter{
     public function __construct($db){
         $this->conn=$db;
     }
-    
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //      READ DATA METHOD
+    //      UP TO 7 SELECTS IN ONE METHOD
+    //      QTYPE SWITCHES BETWEEN THE DIFFERENT QUERY OPTIONS
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public function loginAll(){
+        ///////////////////INICIALISE VARIABLES 
+        $uid=htmlspecialchars(strip_tags($this->id));
+        $API=htmlspecialchars(strip_tags($this->pinnrHash));
+                ///////////////////LOGIN WITH PASS AND ID
+                $gKey=hash('sha256',$API.$uid);
+                $query= '
+                SELECT 
+                id,
+                v_name,
+                n_name,
+                u_name,
+                timetouchIdHash,
+                generalKeyHash,
+                mail,
+                pLevel,
+                urlaubstage
+                FROM
+                mitarbeiter 
+                WHERE 
+                generalKeyHash="'.$gKey.'" 
+                LIMIT 1
+                ';
+                 ///////////////////PREPARE STATEMENT
+                 $stmt=$this->conn->prepare($query);
+                 ///////////////////EXECUTE QUERY
+                 $stmt->execute();        
+                   
+        ///////////////////RETURN RESULT
+        return $stmt;
+    }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //      READ DATA METHOD
@@ -57,7 +91,7 @@ class Mitarbeiter{
                 SELECT 
                 requestToken
                 FROM
-                ' .$this->table.' 
+                mitarbeiter 
                 WHERE 
                 id="'.$uid.'" AND requestToken = "'.$API.'" 
                 LIMIT 1
@@ -205,7 +239,7 @@ class Mitarbeiter{
     public function createMitarbeiter() {
         ///////////////////QUERY
         $query = 'INSERT INTO 
-        ' . $this->table . ' 
+        mitarbeiter 
         SET 
         v_name = :v_name, 
         n_name = :n_name, 
@@ -249,6 +283,32 @@ class Mitarbeiter{
             return false;
         }     
     }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //      UPDATE SESSION TOKEN METHOD
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public function updateSessionAll() {        
+                ///////////////////UPDATE SESSIONTOKEN ON USER
+                $id=htmlspecialchars(strip_tags($this->id));
+                $API=htmlspecialchars(strip_tags($this->timetouchIdHash));
+                $NRQ=htmlspecialchars(strip_tags($this->requestToken));
+                $query = 'UPDATE 
+                mitarbeiter
+                SET 
+                requestToken ="'.$NRQ.'"
+                WHERE 
+                id ="'.$id.'" AND timetouchIdHash="'.$API.'" LIMIT 1';
+                ///////////////////PREPARE STATEMENT
+                $stmt = $this->conn->prepare($query);
+                ///////////////////EXECUTE QUERY
+                if($stmt->execute()) {
+                    return true;
+                }else{
+                    return false;
+                }                
+    }
+    
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -266,7 +326,7 @@ class Mitarbeiter{
                     $nname=htmlspecialchars(strip_tags($this->n_name));
                     $RT=htmlspecialchars(strip_tags($this->requestToken));
                     $query = 'UPDATE 
-                    ' . $this->table . '
+                    mitarbeiter
                     SET 
                     n_name ="'.$nname.'"
                     WHERE 
@@ -290,7 +350,7 @@ class Mitarbeiter{
                         $oldGK=htmlspecialchars(strip_tags($this->requestToken));
                         $GK=hash('sha256',$newPinHash.$Tid);
                         $query = 'UPDATE 
-                        ' . $this->table . '
+                        mitarbeiter
                         SET 
                         pinnrHash ="'.$newPinHash.'",
                         generalKeyHash="'.$GK.'"
@@ -311,7 +371,7 @@ class Mitarbeiter{
                     $uname=htmlspecialchars(strip_tags($this->u_name));
                     $RT=htmlspecialchars(strip_tags($this->requestToken));
                     $query = 'UPDATE 
-                    ' . $this->table . '
+                    mitarbeiter
                     SET 
                     u_name ="'.$uname.'"
                     WHERE 
@@ -334,7 +394,7 @@ class Mitarbeiter{
                     $pLev=htmlspecialchars(strip_tags($this->pLevel));
                     $RT=htmlspecialchars(strip_tags($this->requestToken));
                     $query = 'UPDATE 
-                    ' . $this->table . '
+                    mitarbeiter
                     SET 
                     pLevel ="'.$pLev.'"
                     WHERE 
@@ -357,7 +417,7 @@ class Mitarbeiter{
                     $API=htmlspecialchars(strip_tags($this->requestToken));
                     $NRQ=htmlspecialchars(strip_tags($this->pinnrNew));
                     $query = 'UPDATE 
-                    ' . $this->table . '
+                    mitarbeiter
                     SET 
                     requestToken ="'.$NRQ.'"
                     WHERE 
@@ -398,7 +458,7 @@ class Mitarbeiter{
         if($res->rowCount()>0){
         ///////////////////IF SESSION EXISTS PROCEED WITH DELETE
         $query = 'DELETE FROM 
-                    ' . $this->table . '
+                    mitarbeiter
                     WHERE 
                     id ="'.$uid.'"';
         ///////////////////PREPARE STATEMENT
