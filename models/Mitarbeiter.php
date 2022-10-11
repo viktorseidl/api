@@ -308,6 +308,32 @@ class Mitarbeiter{
                     return false;
                 }                
     }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //      UPDATE MYDATA METHOD
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public function updateMyData() {        
+        ///////////////////UPDATE MYDATA ON USER
+        $NN=htmlspecialchars(strip_tags($this->n_name));
+        $UN=htmlspecialchars(strip_tags($this->u_name));
+        $NRQ=htmlspecialchars(strip_tags($this->requestToken));
+        $query = 'UPDATE 
+        mitarbeiter
+        SET 
+        n_name ="'.$NN.'",
+        u_name ="'.$UN.'"
+        WHERE 
+        requestToken ="'.$NRQ.'" LIMIT 1';
+        ///////////////////PREPARE STATEMENT
+        $stmt = $this->conn->prepare($query);
+        ///////////////////EXECUTE QUERY
+        if($stmt->execute()) {
+            return true;
+        }else{
+            return false;
+        }                
+    }
     
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
