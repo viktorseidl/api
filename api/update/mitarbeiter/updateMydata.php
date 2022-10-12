@@ -32,6 +32,7 @@
       ///////////////////UPDATE MYDATA
       $mitarbeiter->n_name = $data->Nn;
       $mitarbeiter->u_name = $data->Un;
+      $mitarbeiter->umail = $data->Ma;
       $mitarbeiter->requestToken = $data->RequestToken;
       ///////////////////EXECUTE QUERY
       if($mitarbeiter->updateMyData()) {

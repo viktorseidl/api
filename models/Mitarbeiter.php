@@ -27,7 +27,7 @@ class Mitarbeiter{
     public $u_name;
     public $pLevel;
     public $requestToken;
-    public $qType;
+    public $umail;
 
     ///////////////////INICIALISE CLASS
     public function __construct($db){
@@ -52,6 +52,44 @@ class Mitarbeiter{
                 v_name,
                 n_name,
                 u_name,
+                timetouchIdHash,
+                generalKeyHash,
+                mail,
+                pLevel,
+                urlaubstage
+                FROM
+                mitarbeiter 
+                WHERE 
+                generalKeyHash="'.$gKey.'" 
+                LIMIT 1
+                ';
+                 ///////////////////PREPARE STATEMENT
+                 $stmt=$this->conn->prepare($query);
+                 ///////////////////EXECUTE QUERY
+                 $stmt->execute();        
+                   
+        ///////////////////RETURN RESULT
+        return $stmt;
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //      READ DATA METHOD
+    //      UP TO 7 SELECTS IN ONE METHOD
+    //      QTYPE SWITCHES BETWEEN THE DIFFERENT QUERY OPTIONS
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public function loginAllQR(){
+        ///////////////////INICIALISE VARIABLES 
+        $gKey=htmlspecialchars(strip_tags($this->generalKeyHash));
+        
+                ///////////////////LOGIN WITH PASS AND ID
+                $query= '
+                SELECT 
+                id,
+                v_name,
+                n_name,
+                u_name,
+                pinnrHash,
                 timetouchIdHash,
                 generalKeyHash,
                 mail,
@@ -317,12 +355,14 @@ class Mitarbeiter{
         ///////////////////UPDATE MYDATA ON USER
         $NN=htmlspecialchars(strip_tags($this->n_name));
         $UN=htmlspecialchars(strip_tags($this->u_name));
+        $MA=htmlspecialchars(strip_tags($this->umail));
         $NRQ=htmlspecialchars(strip_tags($this->requestToken));
         $query = 'UPDATE 
         mitarbeiter
         SET 
         n_name ="'.$NN.'",
-        u_name ="'.$UN.'"
+        u_name ="'.$UN.'",
+        mail ="'.$MA.'"
         WHERE 
         requestToken ="'.$NRQ.'" LIMIT 1';
         ///////////////////PREPARE STATEMENT
