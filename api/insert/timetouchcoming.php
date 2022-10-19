@@ -1,7 +1,7 @@
 <?php
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      INSERT DATA API
+    //      INSERT TIMETOUCH KOMMEN API
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
@@ -21,34 +21,43 @@
   header('Access-Control-Allow-Methods: POST');
   header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
   ///////////////////INCLUDES
-  include_once('../../../config/Database.php');
-  include_once('../../../models/Mitarbeiter.php');
+  include_once('../../config/Database.php');
+  include_once('../../models/Alluser.php');
 
   ///////////////////INICIATE DB
   $database = new Database();
   $db = $database->connect();
 
   ///////////////////INICIATE OBJECT
-  $mitarbeiter=new Mitarbeiter($db);
+  $Alluser=new Alluser($db);
 
   ///////////////////GET RAW DATA
   $data = json_decode(file_get_contents("php://input"));
   ///////////////////PREPARE DATA
-  $mitarbeiter->v_name = $data->v_name;
-  $mitarbeiter->n_name = $data->n_name;
-  $mitarbeiter->pinnrHash = $data->pinnrHash;
-  $mitarbeiter->timetouchIdHash = $data->timetouchIdHash;
-  $mitarbeiter->generalKeyHash = $data->generalKeyHash;
-  $mitarbeiter->u_name = $data->u_name;
-  $mitarbeiter->pLevel = $data->pLevel;
+  $Alluser->MID = $data->MID;
+  $Alluser->Personalnr = $data->Personalnr;
+  $Alluser->Monat = $data->Monat;
+  $Alluser->Jahr = $data->Jahr;
+  $Alluser->Datum = $data->Datum;
+  $Alluser->Uhrzeit = $data->Uhrzeit;
+  $Alluser->Buchung = $data->Buchung;
+  $Alluser->ImportDatum = $data->ImportDatum;
+  $Alluser->User = $data->Benutzer;
+  $Alluser->Vorgang = $data->Vorgang;
+  $Alluser->ExtDate = $data->ExtDate;
+  $Alluser->ExtDateTime = $data->ExtDateTime;
+        
+  ///////////////////NEW ENTRY
   ///////////////////CREATE QUERY
-  if($mitarbeiter->createMitarbeiter()) {
-      echo json_encode(
-        array('message' => 'Mitarbeiter wurde erstellt')
-      );
-    } else {
-      echo json_encode(
-        array('message' => 'Fehler beim Speichern aufgetreten')
-      );
-    }
+  if($Alluser->createTimeTouchKommen()) {
+    echo json_encode(
+      array('message' => 'Ihre Zeit wurde erfasst!')
+    );
+  } else {
+    echo json_encode(
+      array('message' => 'Fehler bei der Buchung!')
+    );
+  }  
+
+  
 ?>

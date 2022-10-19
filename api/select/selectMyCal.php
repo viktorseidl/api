@@ -18,7 +18,7 @@
     header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
     ///////////////////INCLUDES
     include_once('../../config/Database.php');
-    include_once('../../models/Mitarbeiter.php');
+    include_once('../../models/Alluser.php');
 
 
 
@@ -29,18 +29,18 @@
     $database = new Database();
     $db = $database->connect();
     ///////////////////INICIATE OBJECT
-    $mitarbeiter=new Mitarbeiter($db);
+    $Alluser=new Alluser($db);
     ///////////////////GET RAW DATA
     $data = json_decode(file_get_contents("php://input"));
     ///////////////////UDER-ID
-    $mitarbeiter->TimeTouchNr=$data->TID;
+    $Alluser->MID=$data->MID;
     ///////////////////REQUESTTOKEN OR GENERALKEYHASH
-    $mitarbeiter->Pin=$data->PIN;
+    $Alluser->Monat=$data->MTH;
     ///////////////////PREPARE ARRAY FOR OUTPUT
     $mit_arr=array();
     $mit_arr['data']=array();
 
-    $result = $mitarbeiter->loginAll();
+    $result = $Alluser->getCalenderMonth();
 
     ///////////////////GET ROWS
     $num= $result ->rowCount();
@@ -54,16 +54,18 @@
                     extract($row);
                     
                     $mit_item= array(
-                        'ID' => $ID,        
-                        'Name1' => $Name1,        
-                        'Name2' => $Name2
+                        'Belegung' => $Belegung,        
+                        'Urlaubstage' => $Urlaubstage,        
+                        'RestUrlaub' => $RestUrlaub,        
+                        'Sonderurlaub' => $Sonderurlaub,        
+                        'Ausbezahlt' => $Ausbezahlt
                     );
                     array_push($mit_arr['data'],$mit_item);
                 }            
                 echo json_encode($mit_arr);        
     }else{
         echo json_encode(
-            array('message' => 'Passwort oder Benutzer-ID ist falsch!')
+            array('message' => 'Daten konnten nicht abgerufen werden!')
           );
     }
 ?>

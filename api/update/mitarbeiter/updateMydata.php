@@ -30,10 +30,8 @@
   $data = json_decode(file_get_contents("php://input"));
   ///////////////////PREPARE DATA
       ///////////////////UPDATE MYDATA
-      $mitarbeiter->n_name = $data->Nn;
-      $mitarbeiter->u_name = $data->Un;
-      $mitarbeiter->umail = $data->Ma;
-      $mitarbeiter->requestToken = $data->RequestToken;
+      $mitarbeiter->Name1 = $data->Name1;
+      $mitarbeiter->ID = $data->ID;
       ///////////////////EXECUTE QUERY
       if($mitarbeiter->updateMyData()) {
         echo json_encode(

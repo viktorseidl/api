@@ -6,7 +6,7 @@
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
     @Variables
-      Aid= kann mehrere Zustände haben, hängt vom Query (qType) ab
+      id= kann mehrere Zustände haben, hängt vom Query (qType) ab
       qType= QueryTyp
       API= Kann entweder den requestToken oder den generalKeyHash enthalten
     */
@@ -17,41 +17,48 @@
     header('Access-Control-Allow-Methods: POST');
     header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
     ///////////////////INCLUDES
-    include_once('../../../config/Database.php');
-    include_once('../../../models/Admin.php');
+    include_once('../../config/Database.php');
+    include_once('../../models/Alluser.php');
+
+    ///////////////////GET DATA
     
     ///////////////////INICIATE DB
     $database = new Database();
     $db = $database->connect();
     ///////////////////INICIATE OBJECT
-    $admin=new Admin($db);
+    $Alluser=new Alluser($db);
     ///////////////////GET RAW DATA
     $data = json_decode(file_get_contents("php://input"));
     ///////////////////UDER-ID
-    $admin->Aid=$data->Id;
+    $Alluser->MID=$data->MID;
     ///////////////////PREPARE ARRAY FOR OUTPUT
+    $mit_arr=array();
+    $mit_arr['data']=array();
 
-    $result = $admin->isAdminSet();
+    $result = $Alluser->getLastTimetouches();
 
     ///////////////////GET ROWS
     $num= $result ->rowCount();
     ///////////////////IF GREATER 0 THEN
     if($num > 0){
         
-                ///////////////////CHECK IF LOGGED IN 
-                //  $mitarbeiter->id = User-ID
-                //  $mitarbeiter->requestToken = hash256 requestToken  => SessionToken           
+                ///////////////////LOGIN WITH PASS AND USER-ID
+                //  $mitarbeiter->id = hash User-ID
+                //  $mitarbeiter->generalkeyHash =
                 while($row=$result->fetch(PDO::FETCH_ASSOC)){
-                    if($row['checkIfSet']>0){
-                        echo json_encode(true);
-                    }else{
-                        echo json_encode(false);
-                    }
-                }
-            
-        
+                    extract($row);
+                    
+                    $mit_item= array(
+                        'Datum' => $Datum,        
+                        'Uhrzeit' => $Uhrzeit,        
+                        'Vorgang' => $Vorgang
+                    );
+                    array_push($mit_arr['data'],$mit_item);
+                }            
+                echo json_encode($mit_arr);        
     }else{
-        echo json_encode(false);
+        echo json_encode(
+            array('message' => 'Keine Verbindung zur Datenbank!')
+          );
     }
-
 ?>

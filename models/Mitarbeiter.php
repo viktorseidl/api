@@ -15,19 +15,13 @@ class Mitarbeiter{
     private $conn;
 
     ///////////////////SCHEMA
-    public $id;
-    public $v_name;
-    public $n_name;
-    public $pinnr;
-    public $pinnrNew;
-    public $pinnrHash;
-    public $timetouchId;
-    public $timetouchIdHash;
-    public $generalKeyHash;
-    public $u_name;
-    public $pLevel;
+    public $ID;
+    public $Name1;
+    public $Name2;
+    public $Pin;
+    public $TimeTouchNr;
     public $requestToken;
-    public $umail;
+    
 
     ///////////////////INICIALISE CLASS
     public function __construct($db){
@@ -42,25 +36,20 @@ class Mitarbeiter{
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function loginAll(){
         ///////////////////INICIALISE VARIABLES 
-        $uid=htmlspecialchars(strip_tags($this->id));
-        $API=htmlspecialchars(strip_tags($this->pinnrHash));
+        $PIN=md5(htmlspecialchars(strip_tags($this->Pin)));
+        $TID=md5(htmlspecialchars(strip_tags($this->TimeTouchNr)));
                 ///////////////////LOGIN WITH PASS AND ID
-                $gKey=hash('sha256',$API.$uid);
                 $query= '
                 SELECT 
-                id,
-                v_name,
-                n_name,
-                u_name,
-                timetouchIdHash,
-                generalKeyHash,
-                mail,
-                pLevel,
-                urlaubstage
+                ID,
+                Name1,
+                Name2
                 FROM
-                mitarbeiter 
+                Mitarbeiter 
                 WHERE 
-                generalKeyHash="'.$gKey.'" 
+                md5(TimeTouchNr)="'.$TID.'" 
+                AND
+                md5(Pin)="'.$PIN.'"
                 LIMIT 1
                 ';
                  ///////////////////PREPARE STATEMENT
@@ -71,6 +60,31 @@ class Mitarbeiter{
         ///////////////////RETURN RESULT
         return $stmt;
     }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //      UPDATE MYDATA METHOD
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public function updateMyData() {        
+        ///////////////////UPDATE MYDATA ON USER
+        $NN=htmlspecialchars(strip_tags($this->Name1));
+        $id=htmlspecialchars(strip_tags($this->ID));
+        $query = 'UPDATE 
+        mitarbeiter
+        SET 
+        Name1 ="'.$NN.'"
+        WHERE 
+        ID ="'.$id.'" LIMIT 1';
+        ///////////////////PREPARE STATEMENT
+        $stmt = $this->conn->prepare($query);
+        ///////////////////EXECUTE QUERY
+        if($stmt->execute()) {
+            return true;
+        }else{
+            return false;
+        }                
+    }
+    /*
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //      READ DATA METHOD
@@ -539,5 +553,6 @@ class Mitarbeiter{
             return false;
         }
     }
+    */
 }
 ?>

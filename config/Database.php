@@ -8,7 +8,7 @@
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Database {
     private $host = 'localhost';
-    private $db_name = 'timescreening';
+    private $db_name = 'dsschema';
     private $username = 'root';
     private $password = '';
     private $conn;
