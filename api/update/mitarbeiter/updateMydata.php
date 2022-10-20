@@ -17,23 +17,23 @@
   header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
   ///////////////////INCLUDES
   include_once('../../../config/Database.php');
-  include_once('../../../models/Mitarbeiter.php');
+  include_once('../../../models/Alluser.php');
 
   ///////////////////INICIALISE DB
   $database = new Database();
   $db = $database->connect();
 
   ///////////////////INICIALISE OBJECT
-  $mitarbeiter=new Mitarbeiter($db);
+  $Alluser=new Alluser($db);
 
   ///////////////////GET RAW DATA
   $data = json_decode(file_get_contents("php://input"));
   ///////////////////PREPARE DATA
       ///////////////////UPDATE MYDATA
-      $mitarbeiter->Name1 = $data->Name1;
-      $mitarbeiter->ID = $data->ID;
+      $Alluser->Name1 = $data->Name1;
+      $Alluser->ID = $data->ID;
       ///////////////////EXECUTE QUERY
-      if($mitarbeiter->updateMyData()) {
+      if($Alluser->updateMyData()) {
         echo json_encode(
           array('message' => 'True')
         );

@@ -16,10 +16,13 @@ class Alluser{
 
     ///////////////////SCHEMA
     public $id;
+    public $ID;
+    public $Name1;
     public $v_name;
     public $n_name;
     public $pinnr;
     public $Pin;
+    public $Name2;
     public $pinnrNew;
     public $pinnrHash;
     public $TimeTouchNr;
@@ -48,6 +51,30 @@ class Alluser{
     ///////////////////INICIALISE CLASS
     public function __construct($db){
         $this->conn=$db;
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //      UPDATE MYDATA METHOD
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public function updateMyData() {        
+        ///////////////////UPDATE MYDATA ON USER
+        $NN=htmlspecialchars(strip_tags($this->Name1));
+        $id=htmlspecialchars(strip_tags($this->ID));
+        $query = 'UPDATE 
+        mitarbeiter
+        SET 
+        Name1 ="'.$NN.'"
+        WHERE 
+        ID ="'.$id.'" LIMIT 1';
+        ///////////////////PREPARE STATEMENT
+        $stmt = $this->conn->prepare($query);
+        ///////////////////EXECUTE QUERY
+        if($stmt->execute()) {
+            return true;
+        }else{
+            return false;
+        }                
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -88,25 +115,20 @@ class Alluser{
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function loginAll(){
         ///////////////////INICIALISE VARIABLES 
-        $uid=htmlspecialchars(strip_tags($this->id));
-        $API=htmlspecialchars(strip_tags($this->pinnrHash));
+        $PIN=md5(htmlspecialchars(strip_tags($this->Pin)));
+        $TID=md5(htmlspecialchars(strip_tags($this->TimeTouchNr)));
                 ///////////////////LOGIN WITH PASS AND ID
-                $gKey=hash('sha256',$API.$uid);
                 $query= '
                 SELECT 
-                id,
-                v_name,
-                n_name,
-                u_name,
-                timetouchIdHash,
-                generalKeyHash,
-                mail,
-                pLevel,
-                urlaubstage
+                ID,
+                Name1,
+                Name2
                 FROM
-                mitarbeiter 
+                Mitarbeiter 
                 WHERE 
-                generalKeyHash="'.$gKey.'" 
+                md5(TimeTouchNr)="'.$TID.'" 
+                AND
+                md5(Pin)="'.$PIN.'"
                 LIMIT 1
                 ';
                  ///////////////////PREPARE STATEMENT
@@ -256,25 +278,19 @@ class Alluser{
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function loginAllQR(){
         ///////////////////INICIALISE VARIABLES 
-        $gKey=htmlspecialchars(strip_tags($this->generalKeyHash));
-        
+        $GK=htmlspecialchars(strip_tags($this->Pin));
                 ///////////////////LOGIN WITH PASS AND ID
                 $query= '
                 SELECT 
-                id,
-                v_name,
-                n_name,
-                u_name,
-                pinnrHash,
-                timetouchIdHash,
-                generalKeyHash,
-                mail,
-                pLevel,
-                urlaubstage
+                ID,
+                Name1,
+                Name2,
+                Pin,
+                TimeTouchNr
                 FROM
-                mitarbeiter 
+                Mitarbeiter 
                 WHERE 
-                generalKeyHash="'.$gKey.'" 
+                md5(CONCAT(md5(TimeTouchNr),md5(Pin)))="'.$GK.'" 
                 LIMIT 1
                 ';
                  ///////////////////PREPARE STATEMENT
@@ -284,75 +300,6 @@ class Alluser{
                    
         ///////////////////RETURN RESULT
         return $stmt;
-    }
-    
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //      INSERT DATA METHOD 
-    //
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public function createSupportTicket() {
-        ///////////////////QUERY
-        $query = 'INSERT INTO 
-        supportanfrage 
-        SET 
-        m_id = :id, 
-        m_vname = :v_name, 
-        m_nname = :n_name, 
-        reason = :reason, 
-        description = :descript
-        ';
-
-        ///////////////////PREPARE STATEMENT
-        $stmt = $this->conn->prepare($query);
-
-        ///////////////////CLEAN DATA
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $this->v_name = htmlspecialchars(strip_tags($this->v_name));
-        $this->n_name = htmlspecialchars(strip_tags($this->n_name));
-        $this->SReason = htmlspecialchars(strip_tags($this->SReason));
-        $this->SDescription = nl2br(htmlspecialchars(strip_tags($this->SDescription)));
-                
-        ///////////////////BIND DATA
-        $stmt->bindParam(':id', $this->id);
-        $stmt->bindParam(':v_name', $this->v_name);
-        $stmt->bindParam(':n_name', $this->n_name);
-        $stmt->bindParam(':reason', $this->SReason);
-        $stmt->bindParam(':descript', $this->SDescription);
-        
-        ///////////////////EXECUTE QUERY
-        if($stmt->execute()) {
-            return true;
-        }else{
-            return false;
-        }     
-    }
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //      UPDATE SESSION TOKEN METHOD
-    //
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public function updateSessionAll() {        
-                ///////////////////UPDATE SESSIONTOKEN ON USER
-                $id=htmlspecialchars(strip_tags($this->id));
-                $API=htmlspecialchars(strip_tags($this->timetouchIdHash));
-                $NRQ=htmlspecialchars(strip_tags($this->requestToken));
-                $query = 'UPDATE 
-                mitarbeiter
-                SET 
-                requestToken ="'.$NRQ.'"
-                WHERE 
-                id ="'.$id.'" AND timetouchIdHash="'.$API.'" LIMIT 1';
-                ///////////////////PREPARE STATEMENT
-                $stmt = $this->conn->prepare($query);
-                ///////////////////EXECUTE QUERY
-                if($stmt->execute()) {
-                    return true;
-                }else{
-                    return false;
-                }                
-    }
-    
-    
+    }    
 }
 ?>

@@ -18,7 +18,7 @@
     header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
     ///////////////////INCLUDES
     include_once('../../config/Database.php');
-    include_once('../../models/Mitarbeiter.php');
+    include_once('../../models/Alluser.php');
 
 
 
@@ -29,18 +29,18 @@
     $database = new Database();
     $db = $database->connect();
     ///////////////////INICIATE OBJECT
-    $mitarbeiter=new Mitarbeiter($db);
+    $Alluser=new Alluser($db);
     ///////////////////GET RAW DATA
     $data = json_decode(file_get_contents("php://input"));
     ///////////////////UDER-ID
-    $mitarbeiter->TimeTouchNr=$data->TID;
+    $Alluser->TimeTouchNr=$data->TID;
     ///////////////////REQUESTTOKEN OR GENERALKEYHASH
-    $mitarbeiter->Pin=$data->PIN;
+    $Alluser->Pin=$data->PIN;
     ///////////////////PREPARE ARRAY FOR OUTPUT
     $mit_arr=array();
     $mit_arr['data']=array();
 
-    $result = $mitarbeiter->loginAll();
+    $result = $Alluser->loginAll();
 
     ///////////////////GET ROWS
     $num= $result ->rowCount();
