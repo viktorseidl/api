@@ -1,46 +1,48 @@
 <?php
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      2 FACTOR AUTHENTICATION
+    //      2 FACTOR NEW PASS API -- POST
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
+    MID = Hash Mitarbeiter-ID
+    PP = Pass Old Hash
+    PPN = Pass new Hash
     */
-  ///////////////////HEADERS
-  header('Access-Control-Allow-Origin: *');
-  header('Content-Type: application/json');
-  header('Access-Control-Allow-Methods: POST');
-  header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
-  include_once('../../config/Database.php');
-  include_once('../../models/Alluser.php');
-  ///////////////////INICIATE DB
-  $database = new Database();
-  $db = $database->connect();
-  ///////////////////INICIATE OBJECT
-  $Alluser=new Alluser($db);
-  ///////////////////GET RAW DATA
-  $data = json_decode(file_get_contents("php://input"));
-  ///////////////////PREPARE DATA
-  $Alluser->TimeTouchNr = base64_decode(urldecode($data->MID));
-  $Alluser->Pin = base64_decode(urldecode($data->PP));
-  $MID = urlencode(base64_encode(urldecode($data->MID)));
-  $PassOld = urlencode(base64_encode(urldecode($data->PP)));
-  $PassNew = urlencode(base64_encode(urldecode($data->PPN)));
-  $Email = base64_decode(urldecode($data->EM));
-  $Salt1 = '5ded1cad640d14abdb9f6589c7a2e23c153ee804';
-  $Salt2 = 'ad640d14abc589c7a2e23c153edb9f65ded1e804';
-  $Salt3 = 'e23c1535ded1cad640d14aee804bdb9f6589c7a2';
-  $result = $Alluser->loginAll();
-  $sevenDay=urlencode(base64_encode(base64_encode(time()+(3600*24*7))));
-  //TESTSTRING : https:\/\/www.data-schafhausen.com\/activateNewPass.php?M=TWc9PQ%3D%3D5ded1cad640d14abdb9f6589c7a2e23c153ee804&PP=ad640d14abc589c7a2e23c153edb9f65ded1e804VDJob01pRmhZV0U9&PT=TVRZMk5qYzVNVFUzTmc9PQ%3D%3De23c1535ded1cad640d14aee804bdb9f6589c7a2
+    ///////////////////HEADERS
+    header('Access-Control-Allow-Origin: *');
+    header('Content-Type: application/json');
+    header('Access-Control-Allow-Methods: POST');
+    header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
+    include_once('../../config/Database.php');
+    include_once('../../models/Alluser.php');
+    ///////////////////INICIATE DB
+    $database = new Database();
+    $db = $database->connect();
+    ///////////////////INICIATE OBJECT
+    $Alluser=new Alluser($db);
+    ///////////////////GET RAW DATA
+    $data = json_decode(file_get_contents("php://input"));
+    ///////////////////PREPARE DATA
+    $Alluser->TimeTouchNr = base64_decode(urldecode($data->MID));
+    $Alluser->Pin = base64_decode(urldecode($data->PP));
+    $MID = urlencode(base64_encode(urldecode($data->MID)));
+    $PassOld = urlencode(base64_encode(urldecode($data->PP)));
+    $PassNew = urlencode(base64_encode(urldecode($data->PPN)));
+    $Email = base64_decode(urldecode($data->EM));
+    $Salt1 = '5ded1cad640d14abdb9f6589c7a2e23c153ee804';
+    $Salt2 = 'ad640d14abc589c7a2e23c153edb9f65ded1e804';
+    $Salt3 = 'e23c1535ded1cad640d14aee804bdb9f6589c7a2';
+    ///////////////////EXECUTE QUERY
+    $result = $Alluser->loginAll();
+    ///////////////////CREATE TIMER 
+    $sevenDay=urlencode(base64_encode(base64_encode(time()+(3600*24*7))));
+    //TESTSTRING : https:\/\/www.data-schafhausen.com\/activateNewPass.php?M=TWc9PQ%3D%3D5ded1cad640d14abdb9f6589c7a2e23c153ee804&PP=ad640d14abc589c7a2e23c153edb9f65ded1e804VDJob01pRmhZV0U9&PT=TVRZMk5qYzVNVFUzTmc9PQ%3D%3De23c1535ded1cad640d14aee804bdb9f6589c7a2
     $m='https://www.itsnando.com/api/update/activateNewPass.php?M='.$MID.$Salt1.'&PP='.$Salt2.$PassNew.'&PT='.$sevenDay.$Salt3;
     ///////////////////GET ROWS
     $num= $result ->rowCount();
     ///////////////////IF GREATER 0 THEN 
-    if($num > 0){
-        
-        //Send E-mail
-        
+    if($num > 0){            
         $to = "$Email";
         $from = "noreply@data-schafhausen.com";
         $subject = 'Passwort aktivieren';
@@ -171,21 +173,20 @@
                       <div class="em_hide" style="white-space: nowrap; display: none; font-size:0px; line-height:0px;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>
                       </body></html>';
                       $headers="From: $from\n";
-                  $headers.="MIME-Version: 1.0\n";
-                  $headers.="Content-type: text/html; charset=ISO-8859-1\n";
-                  if(mail($to, $subject, $message, $headers)){
-                    echo json_encode(
-                        array('message' => 'Eine Aktivierungs-E-Mail wurde an Sie versendet! Sie werden jetzt abgemeldet.')
-                      );
-                  }else{
-                    echo json_encode(
-                        array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
-                      );
-                  }
-                  
+                      $headers.="MIME-Version: 1.0\n";
+                      $headers.="Content-type: text/html; charset=ISO-8859-1\n";
+                      if(mail($to, $subject, $message, $headers)){
+                        echo json_encode(
+                          array('message' => 'Eine Aktivierungs-E-Mail wurde an Sie versendet! Sie werden jetzt abgemeldet.')
+                        );
+                      }else{
+                        echo json_encode(
+                          array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
+                        );
+                      }                  
     }else{
         echo json_encode(
-                        array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
-                      );   
+          array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
+        );   
     }
 ?>

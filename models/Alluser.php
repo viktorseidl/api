@@ -1,20 +1,15 @@
 <?php
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      MITARBEITER CLASS
+    //      USER CLASS
     //      
-    //      @ FUNCTION INSERT 
-    //      @ FUNCTION SELECT
-    //      @ FUNCTION UPDATE
-    //      @ FUNCTION DELETE
+    //      @ INSERT, SELECT, UPDATE 
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class Alluser{
     ///////////////////DB
     private $conn;
-
-    ///////////////////SCHEMA
+    ///////////////////VARIABLES
     public $id;
     public $ID;
     public $Name1;
@@ -47,8 +42,7 @@ class Alluser{
     public $ExtDate;
     public $ExtDateTime;
     public $Personalnr;
-
-    ///////////////////INICIALISE CLASS
+    ///////////////////INICIALISE CLASS AND DB CONNECTION
     public function __construct($db){
         $this->conn=$db;
     }
@@ -78,16 +72,13 @@ class Alluser{
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      READ DATA METHOD
-    //      UP TO 7 SELECTS IN ONE METHOD
-    //      QTYPE SWITCHES BETWEEN THE DIFFERENT QUERY OPTIONS
+    //      UPDATE PASSWORD METHOD
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function updatePass(){
         ///////////////////INICIALISE VARIABLES 
         $tid=htmlspecialchars(strip_tags($this->TimeTouchNr));
         $pas=htmlspecialchars(strip_tags($this->Pin));
-                ///////////////////LOGIN WITH PASS AND ID
                 $query= '
                 UPDATE 
                 mitarbeiter
@@ -108,16 +99,13 @@ class Alluser{
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      READ DATA METHOD
-    //      UP TO 7 SELECTS IN ONE METHOD
-    //      QTYPE SWITCHES BETWEEN THE DIFFERENT QUERY OPTIONS
+    //      LOGIN METHOD
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function loginAll(){
         ///////////////////INICIALISE VARIABLES 
         $PIN=md5(htmlspecialchars(strip_tags($this->Pin)));
         $TID=md5(htmlspecialchars(strip_tags($this->TimeTouchNr)));
-                ///////////////////LOGIN WITH PASS AND ID
                 $query= '
                 SELECT 
                 ID,
@@ -134,23 +122,19 @@ class Alluser{
                  ///////////////////PREPARE STATEMENT
                  $stmt=$this->conn->prepare($query);
                  ///////////////////EXECUTE QUERY
-                 $stmt->execute();        
-                   
+                 $stmt->execute();                         
         ///////////////////RETURN RESULT
         return $stmt;
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      READ DATA METHOD
-    //      UP TO 7 SELECTS IN ONE METHOD
-    //      QTYPE SWITCHES BETWEEN THE DIFFERENT QUERY OPTIONS
+    //      READ CALENDAR METHOD
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function getCalenderMonth(){
         ///////////////////INICIALISE VARIABLES 
         $mth=htmlspecialchars(strip_tags($this->Monat));
         $uid=htmlspecialchars(strip_tags($this->MID));
-                ///////////////////LOGIN WITH PASS AND ID
                 $query= '
                 SELECT 
                 Belegung,
@@ -169,24 +153,19 @@ class Alluser{
                  ///////////////////PREPARE STATEMENT
                  $stmt=$this->conn->prepare($query);
                  ///////////////////EXECUTE QUERY
-                 $stmt->execute();        
-                   
-        ///////////////////RETURN RESULT
-        
+                 $stmt->execute();                           
+        ///////////////////RETURN RESULT        
         return $stmt;
         
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      READ DATA METHOD
+    //      READ LAST TIMETOUCHES METHOD
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function getLastTimetouches(){
         ///////////////////INICIALISE VARIABLES 
         $mid=htmlspecialchars(strip_tags($this->MID));
-        
-        
-                ///////////////////LOGIN WITH PASS AND ID
                 $query= '
                 SELECT 
                 Datum,
@@ -201,15 +180,14 @@ class Alluser{
                  ///////////////////PREPARE STATEMENT
                  $stmt=$this->conn->prepare($query);
                  ///////////////////EXECUTE QUERY
-                 $stmt->execute();        
-                   
+                 $stmt->execute();                           
         ///////////////////RETURN RESULT
         return $stmt;
     }
     
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      INSERT DATA METHOD 
+    //      INSERT TIMETOUCH METHOD 
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function createTimeTouchKommen() {
@@ -271,15 +249,12 @@ class Alluser{
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      READ DATA METHOD
-    //      UP TO 7 SELECTS IN ONE METHOD
-    //      QTYPE SWITCHES BETWEEN THE DIFFERENT QUERY OPTIONS
+    //      LOGIN WITH QR METHOD
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public function loginAllQR(){
         ///////////////////INICIALISE VARIABLES 
         $GK=htmlspecialchars(strip_tags($this->Pin));
-                ///////////////////LOGIN WITH PASS AND ID
                 $query= '
                 SELECT 
                 ID,
@@ -297,7 +272,6 @@ class Alluser{
                  $stmt=$this->conn->prepare($query);
                  ///////////////////EXECUTE QUERY
                  $stmt->execute();        
-                   
         ///////////////////RETURN RESULT
         return $stmt;
     }    

@@ -1,21 +1,26 @@
 <?php
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      INSERT DATA API
+    //      REQUEST HOLIDAYS API -- POST
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
-   
+    MID= Mitarbeiter-ID
+    Mvname = Mitarbeiter Vorname
+    Mnname = Mitarbeiter Nachname
+    Datum  = von Datum
+    BisDatum = bis Datum
+    AntragTyp =  Typ (Stundenkonto, Urlaub, Sonderurlaub)
+    SDescription = Beschreibung oder Bemerkung
     */
-  ///////////////////HEADERS
-  header('Access-Control-Allow-Origin: *');
-  header('Content-Type: application/json');
-  header('Access-Control-Allow-Methods: POST');
-  header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
-  ///////////////////GET RAW DATA
-  $data = json_decode(file_get_contents("php://input"));
-  ///////////////////PREPARE DATA
-
+    ///////////////////HEADERS
+    header('Access-Control-Allow-Origin: *');
+    header('Content-Type: application/json');
+    header('Access-Control-Allow-Methods: POST');
+    header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
+    ///////////////////GET RAW DATA
+    $data = json_decode(file_get_contents("php://input"));
+    ///////////////////PREPARE DATA
         $Mid = htmlspecialchars(strip_tags($data->MID));
         $Mvname = htmlspecialchars(strip_tags($data->Mvname));
         $Mnname = htmlspecialchars(strip_tags($data->Mnname));
@@ -24,10 +29,8 @@
         $Antragtyp = htmlspecialchars(strip_tags($data->Antragtyp));
         $AnzahlTage = htmlspecialchars(strip_tags($data->AnzahlTage));
         $SDescription = nl2br(htmlspecialchars(strip_tags($data->Bemerkung)));
-  ///////////////////CREATE QUERY
-  if(isset($Mid)&&($Mvname)&&($Mnname)&&($FromDate)&&($ToDate)&&($Antragtyp)&&($AnzahlTage)) {
-      
-      
+    ///////////////////CREATE EMAIL
+    if(isset($Mid)&&($Mvname)&&($Mnname)&&($FromDate)&&($ToDate)&&($Antragtyp)&&($AnzahlTage)) {      
         $to = "viktorseidl@gmail.com";
         $from = "noreply@data-schafhausen.com";
         $subject = "Urlaubsantrag";
@@ -38,19 +41,15 @@
             if(mail($to, $subject, $message, $headers)){
                 echo json_encode(
                     array('message' => 'Urlaubsantrag wurde erstellt! Sobald er genehmigt wurde, wird dieser in Ihren Kalender angezeigt.')
-                );
-                      
+                );                      
             }else{
                 echo json_encode(
                     array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
                 );
-            }
-                
+            }                
     } else {
-
       echo json_encode(
         array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
       );
-
     }
 ?>

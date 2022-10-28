@@ -1,15 +1,15 @@
 <?php
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      2 FACTOR AUTHENTICATION
+    //      CONFIRM NEW PASS API -- GET REQUEST
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
-    */
-  ///////////////////HEADERS
-
+    TID= TimeTouchHash
+    PASS= OldPassHash
+    TIME= TimeStamp
+    */  
     if(isset($_GET['M'])&&($_GET['PP'])&&($_GET['PT'])){
-    
         ///////////////////PREPARE DATA
         $TID = str_replace('5ded1cad640d14abdb9f6589c7a2e23c153ee804','',$_GET['M']);
         $TID = base64_decode(base64_decode(urldecode($TID)));
@@ -35,9 +35,6 @@
                 echo "Aktivierung fehlgeschlagen";
             }
         }
-    
-    
-  
     }else{  
         http_response_code(404);
         exit();

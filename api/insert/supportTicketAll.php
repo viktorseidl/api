@@ -1,29 +1,27 @@
 <?php
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      INSERT DATA API
+    //      SUPPORT TICKET API  -- POST
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
-    @Variables
-      id= User-ID
-      v_name= Surname
-      n_name= Familyname
-      pinnrHash= sha256 Hash vom Passwort
-      timetouchIDHash= sha256 Hash von User-ID (=TimeTouchID)
-      generalKeyHash= sha256 Hash von pinnerHash + timetouchIdHash
-      u_name = Benutzername für anonymisierung der perönlichen Daten
-      pLevel = Permission Level (1=normaler User, 5=Admin | 2=nicht vergeben, 3=nicht vergeben, 4=nicht vergeben)
+    @Variables 
+      $Mid= Mitarbeiter-ID
+      $Mvname= Vorname
+      $Mnname= Nachname
+      $SReason= Grund
+      $Mail= Mail Mitarbeiter
+      $SDescription= Beschreibung
+      $tnum = TicketNummer T-Unixtimestamp 
     */
-  ///////////////////HEADERS
-  header('Access-Control-Allow-Origin: *');
-  header('Content-Type: application/json');
-  header('Access-Control-Allow-Methods: POST');
-  header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
+  ///////////////////HEADERS  
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Methods: POST');
+        header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
   ///////////////////GET RAW DATA
-  $data = json_decode(file_get_contents("php://input"));
+        $data = json_decode(file_get_contents("php://input"));
   ///////////////////PREPARE DATA
-
         $Mid = htmlspecialchars(strip_tags($data->Mid));
         $Mvname = htmlspecialchars(strip_tags($data->Mvname));
         $Mnname = htmlspecialchars(strip_tags($data->Mnname));
@@ -31,13 +29,14 @@
         $Mail = htmlspecialchars(strip_tags($data->Mail));
         $SDescription = nl2br(htmlspecialchars(strip_tags($data->SDescription)));
         $tnum=time();
-  ///////////////////CREATE QUERY
+  ///////////////////CREATE EMAIL PROCESSING
   if(isset($Mid)&&($Mvname)&&($Mnname)&&($SReason)&&($Mail)&&($SDescription)) {
       
       
         $to = "$Mail";
         $from = "noreply@data-schafhausen.com";
         $subject = "Support Ticket $tnum - $SReason";
+        /////////////////CREATE XHTML 1.0 EMAIL FORMAT
         $message='                
                   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
                   <html xmlns="https://www.w3.org/1999/xhtml">
@@ -122,9 +121,9 @@
                   <body class="em_body" style="margin:0px; padding:0px;" bgcolor="#efefef">
                   <table align="center" width="700" border="0" cellspacing="0" cellpadding="0" class="em_main_table" style="width:700px;">
                   <tr>
-                  <td valign="top" align="center"><table width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
+                  <td valign="top" align="center"><table style="width:100%;" cellspacing="0" cellpadding="0" border="0" align="center">
                   <tbody><tr>
-                  <td valign="top" align="center " bgcolor="#64748b"><img class="em_img" alt="Welcome to EmailWeb Newsletter" style=" float:left; margin: 30px 0px 25px 25px;display:block; font-family:Arial, sans-serif; font-size:30px; line-height:34px; color:#000000; max-width:700px;" src="https://www.data-schafhausen.com/wp-content/uploads/DATA-Schafhausen-Logo.png" width="100" border="0" height="50"></td>
+                  <td valign="top" align="center " width="100%" bgcolor="#64748b"><img class="em_img" alt="Welcome to EmailWeb Newsletter" style=" float:left; margin: 30px 0px 25px 25px;display:block; font-family:Arial, sans-serif; font-size:30px; line-height:34px; color:#000000; max-width:700px;" src="https://www.data-schafhausen.com/wp-content/uploads/DATA-Schafhausen-Logo.png" width="100" border="0" height="50"></td>
                   </tr>
                   </tbody></table></td>
                   </tr>
@@ -170,34 +169,31 @@
                   $headers="From: $from\n";
                   $headers.="MIME-Version: 1.0\n";
                   $headers.="Content-type: text/html; charset=ISO-8859-1\n";
-                    if(mail($to, $subject, $message, $headers)){
-                      $to = "viktorseidl@gmail.com";
-                      $from = "$Mail";
-                      $subject = "Support Ticket $tnum - $SReason";
-                      $message='<br/>Mitarbeiter Daten:<br/>'.$Mnname.', '.$Mvname.'<br/>'.$Mail.'<br/><br/>Nachricht:<br/>'.$SDescription.'<br/>';
-                      $headers="From: $from\n";
-                      $headers.="MIME-Version: 1.0\n";
-                      $headers.="Content-type: text/html; charset=ISO-8859-1\n";
                         if(mail($to, $subject, $message, $headers)){
-                          echo json_encode(
-                            array('message' => 'Support Ticket T-'.$tnum' wurde erstellt. Wir werden Ihr Anliegen zeitlich bearbeiten.')
-                          );
+                              $to2 = "viktorseidl@gmail.com";
+                              $from2 = "$Mail";
+                              $subject2 = "Support Ticket $tnum - $SReason";
+                              $message2='<br/>Mitarbeiter Daten:<br/>'.$Mnname.', '.$Mvname.'<br/>'.$Mail.'<br/><br/>Nachricht:<br/>'.$SDescription.'<br/>';
+                              $headers2="From: $from\n";
+                              $headers2.="MIME-Version: 1.0\n";
+                              $headers2.="Content-type: text/html; charset=ISO-8859-1\n";
+                                    if(mail($to2, $subject2, $message2, $headers2)){
+                                          echo json_encode(
+                                            array('message' => 'Support Ticket T-'.$tnum' wurde erstellt. Wir werden Ihr Anliegen zeitlich bearbeiten.')
+                                          );
+                                    }else{
+                                          echo json_encode(
+                                            array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
+                                          );
+                                    }
                         }else{
-                          echo json_encode(
-                            array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
-                          );
+                              echo json_encode(
+                                array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
+                              );
                         }
-                    }else{
-                      echo json_encode(
-                        array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
-                      );
-                    }
-
     } else {
-
-      echo json_encode(
-        array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
-      );
-
+          echo json_encode(
+            array('message' => 'Fehler beim senden der Anfrage aufgetreten!')
+          );
     }
 ?>

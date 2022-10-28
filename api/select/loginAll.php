@@ -1,16 +1,14 @@
 <?php
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      READ DATA API
+    //      LOGIN API --POST
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
     @Variables
-      id= kann mehrere Zustände haben, hängt vom Query (qType) ab
-      qType= QueryTyp
-      API= Kann entweder den requestToken oder den generalKeyHash enthalten
+      TID= Mitarbeiter-ID - Chipnummer
+      PIN= Passwort
     */
-
     ///////////////////HEADERS
     header('Access-Control-Allow-Origin: *');
     header('Content-Type: application/json');
@@ -18,13 +16,7 @@
     header('Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type,Access-Control-Allow-Methods, Authorization, X-Requested-With');
     ///////////////////INCLUDES
     include_once('../../config/Database.php');
-    include_once('../../models/Alluser.php');
-
-
-
-
-    ///////////////////GET DATA
-    
+    include_once('../../models/Alluser.php');    
     ///////////////////INICIATE DB
     $database = new Database();
     $db = $database->connect();
@@ -32,27 +24,22 @@
     $Alluser=new Alluser($db);
     ///////////////////GET RAW DATA
     $data = json_decode(file_get_contents("php://input"));
-    ///////////////////UDER-ID
+    ///////////////////USER-ID
     $Alluser->TimeTouchNr=$data->TID;
-    ///////////////////REQUESTTOKEN OR GENERALKEYHASH
+    ///////////////////PASS
     $Alluser->Pin=$data->PIN;
     ///////////////////PREPARE ARRAY FOR OUTPUT
     $mit_arr=array();
     $mit_arr['data']=array();
-
+    ///////////////////EXECUTE QUERY
     $result = $Alluser->loginAll();
-
     ///////////////////GET ROWS
     $num= $result ->rowCount();
     ///////////////////IF GREATER 0 THEN
-    if($num > 0){
-        
+    if($num > 0){        
                 ///////////////////LOGIN WITH PASS AND USER-ID
-                //  $mitarbeiter->id = hash User-ID
-                //  $mitarbeiter->generalkeyHash =
                 while($row=$result->fetch(PDO::FETCH_ASSOC)){
-                    extract($row);
-                    
+                    extract($row);                    
                     $mit_item= array(
                         'ID' => $ID,        
                         'Name1' => $Name1,        
@@ -62,8 +49,8 @@
                 }            
                 echo json_encode($mit_arr);        
     }else{
-        echo json_encode(
-            array('message' => 'Passwort oder Benutzer-ID ist falsch!')
-          );
+            echo json_encode(
+                array('message' => 'Passwort oder Benutzer-ID ist falsch!')
+            );
     }
 ?>

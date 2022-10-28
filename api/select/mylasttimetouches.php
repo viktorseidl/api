@@ -1,16 +1,13 @@
 <?php
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //      READ DATA API
+    //      LAST 5 TIMETOUCHES API -- POST
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
     @Variables
-      id= kann mehrere Zustände haben, hängt vom Query (qType) ab
-      qType= QueryTyp
-      API= Kann entweder den requestToken oder den generalKeyHash enthalten
+      MID= Mitarbeiter-ID
     */
-
     ///////////////////HEADERS
     header('Access-Control-Allow-Origin: *');
     header('Content-Type: application/json');
@@ -19,9 +16,6 @@
     ///////////////////INCLUDES
     include_once('../../config/Database.php');
     include_once('../../models/Alluser.php');
-
-    ///////////////////GET DATA
-    
     ///////////////////INICIATE DB
     $database = new Database();
     $db = $database->connect();
@@ -29,25 +23,20 @@
     $Alluser=new Alluser($db);
     ///////////////////GET RAW DATA
     $data = json_decode(file_get_contents("php://input"));
-    ///////////////////UDER-ID
+    ///////////////////USER-ID
     $Alluser->MID=$data->MID;
     ///////////////////PREPARE ARRAY FOR OUTPUT
     $mit_arr=array();
     $mit_arr['data']=array();
-
+    ///////////////////EXECUTE QUERY
     $result = $Alluser->getLastTimetouches();
-
     ///////////////////GET ROWS
     $num= $result ->rowCount();
     ///////////////////IF GREATER 0 THEN
-    if($num > 0){
-        
+    if($num > 0){        
                 ///////////////////LOGIN WITH PASS AND USER-ID
-                //  $mitarbeiter->id = hash User-ID
-                //  $mitarbeiter->generalkeyHash =
                 while($row=$result->fetch(PDO::FETCH_ASSOC)){
-                    extract($row);
-                    
+                    extract($row);                    
                     $mit_item= array(
                         'Datum' => $Datum,        
                         'Uhrzeit' => $Uhrzeit,        
@@ -57,8 +46,8 @@
                 }            
                 echo json_encode($mit_arr);        
     }else{
-        echo json_encode(
-            array('message' => 'Keine Verbindung zur Datenbank!')
-          );
+            echo json_encode(
+                array('message' => 'Keine Verbindung zur Datenbank!')
+            );
     }
 ?>
